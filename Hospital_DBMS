@@ -1,0 +1,633 @@
+import mysql.connector as sql
+from customtkinter import *
+from tkinter import messagebox
+from PIL import Image
+from datetime import datetime
+
+users = {"Test1":1234,"Test2":123}
+
+connection = sql.connect(
+    user="<Your_User_Here>",
+    password="<Your_Password_Here>",
+    host="<Your_Hostname_Here>",
+    database="hospital_dbms"
+)
+
+cursor = connection.cursor()
+
+def HOME():
+    if 'Add_frame' in globals():
+        Add_frame.pack_forget()
+    if 'Delete_frame' in globals():
+        Delete_frame.pack_forget()
+    if 'Bill_Frame' in globals():
+        Bill_Frame.pack_forget()
+    if 'Inventory_Frame' in globals():
+        Inventory_Frame.pack_forget()
+    if 'patient_add_frame' in globals():
+        patient_add_frame.pack_forget()
+    if 'doctor_add_frame' in globals():
+        doctor_add_frame.pack_forget()
+    if 'staff_add_frame' in globals():
+        staff_add_frame.pack_forget()
+    if 'Del_frame' in globals():
+        Del_frame.pack_forget()
+    if 'supply1_frame' in globals():
+        supply1_frame.pack_forget()
+    if 'alert_frame' in globals():
+        alert_frame.pack_forget()
+
+
+    main_page()
+
+def login():
+    user_name = entry_name.get().lower()
+    user_pass = entry_pas.get()
+
+    if user_name not in users:
+        login_message.configure(text="Invalid user, please try again.", text_color="red")
+    else:
+        try:
+            if int(user_pass) == users[user_name]:
+                login_message.configure(text="Logged IN", text_color="green")
+                main_page()
+            else:
+                login_message.configure(text="Invalid passcode, please try again.", text_color="red")
+        except ValueError:
+            login_message.configure(text="Passcode must be a number.", text_color="red")
+
+def Add_record():
+    main_view.pack_forget()
+    global Add_frame
+    Add_frame = CTkFrame(master=app, width=300, height=480, fg_color="#ffffff")
+    Add_frame.pack_propagate(0)
+    Add_frame.pack(expand=True, side="right")
+
+    def save_add(table, data):
+        admission_date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        if table == 'patient':
+            cursor.execute('''
+                INSERT INTO patient_record (Patient_id,Name,Age,Phone_no,Address,admission_date) 
+                VALUES (%s, %s, %s, %s, %s, %s)''', (data['Patient_id'], data['Name'], data['Age'], data['Phone_no'], data['Address']
+                                                                         ,admission_date))
+            print("Record Added.")
+
+        elif table == 'doctors':
+            cursor.execute('''
+                            INSERT INTO doctor_record (Doctor_id,Name,Age,Department,Speciality,Phone_no) 
+                            VALUES (%s, %s, %s, %s, %s, %s)''',
+                           (data['Doctor_id'], data['Name'], data['Age'], data['Department'], data['Speciality'],data['Phone_no']))
+            print("Record Added.")
+
+        elif table == 'staff':
+            cursor.execute('''
+                            INSERT INTO staff_record (Staff_id,Name,Age,Phone_no,Address,Salary,Department) 
+                            VALUES (%s, %s, %s, %s, %s, %s,%s)''',
+                           (data['Staff_id'], data['Name'], data['Age'], data['Phone_no'], data['Address'], data['Salary']
+                            , data['Department']))
+            print("Record Added.")
+
+        connection.commit()
+
+    def add_patient():
+        Add_frame.forget()
+        global patient_add_frame
+        patient_add_frame = CTkScrollableFrame(master=app, width=300, height=480, fg_color="#ffffff")
+        patient_add_frame.pack(expand=True, side="right", fill="both")  # Ensure the frame fills the space
+
+
+        CTkLabel(master=patient_add_frame, text="Add New Records", text_color="#016dff", anchor="w", justify="left",
+                 font=("Arial Bold", 24)).pack(anchor="w", pady=(50, 5), padx=(25, 0))
+
+        CTkLabel(master=patient_add_frame, text="Patient ID:", text_color="#016dff", anchor="w", justify="left",
+                 font=("Arial Bold", 14), compound="left").pack(anchor="w", pady=(38, 0), padx=(25, 0))
+        patient_id_add = CTkEntry(master=patient_add_frame, width=225, fg_color="#EEEEEE", border_color="#016dff",
+                                  border_width=1, text_color="#000000", placeholder_text="Enter Patient ID:")
+        patient_id_add.pack(anchor="w", padx=(25, 0))
+
+        CTkLabel(master=patient_add_frame, text="Patient Name:", text_color="#016dff", anchor="w", justify="left",
+                 font=("Arial Bold", 14), compound="left").pack(anchor="w", pady=(38, 0), padx=(25, 0))
+        patient_name_add = CTkEntry(master=patient_add_frame, width=225, fg_color="#EEEEEE", border_color="#016dff",
+                                    border_width=1, text_color="#000000", placeholder_text="Enter Patient Name:")
+        patient_name_add.pack(anchor="w", padx=(25, 0))
+
+        CTkLabel(master=patient_add_frame, text="Patient Age:", text_color="#016dff", anchor="w", justify="left",
+                 font=("Arial Bold", 14), compound="left").pack(anchor="w", pady=(38, 0), padx=(25, 0))
+        patient_age_add = CTkEntry(master=patient_add_frame, width=225, fg_color="#EEEEEE", border_color="#016dff",
+                                   border_width=1, text_color="#000000", placeholder_text="Enter Patient Age:")
+        patient_age_add.pack(anchor="w", padx=(25, 0))
+
+        CTkLabel(master=patient_add_frame, text="Patient Phone Number:", text_color="#016dff", anchor="w",
+                 justify="left",
+                 font=("Arial Bold", 14), compound="left").pack(anchor="w", pady=(38, 0), padx=(25, 0))
+        patient_phone_add = CTkEntry(master=patient_add_frame, width=225, fg_color="#EEEEEE", border_color="#016dff",
+                                     border_width=1, text_color="#000000",
+                                     placeholder_text="Enter Patient Phone Number:")
+        patient_phone_add.pack(anchor="w", padx=(25, 0))
+
+        CTkLabel(master=patient_add_frame, text="Patient Address:", text_color="#016dff", anchor="w", justify="left",
+                 font=("Arial Bold", 14), compound="left").pack(anchor="w", pady=(38, 0), padx=(25, 0))
+        patient_address_add = CTkEntry(master=patient_add_frame, width=225, fg_color="#EEEEEE", border_color="#016dff",
+                                       border_width=1, text_color="#000000", placeholder_text="Enter Patient Address:")
+        patient_address_add.pack(anchor="w", padx=(25, 0))
+        CTkButton(master=patient_add_frame, text="Save", fg_color="#016dff", font=("Arial Bold", 12), text_color="#ffffff",
+                  width=225,command=lambda: save_add('patient', {
+                'Patient_id': patient_id_add.get(),
+                'Name': patient_name_add.get(),
+                'Age': patient_age_add.get(),
+                'Phone_no': patient_phone_add.get(),
+                'Address': patient_address_add.get()
+                })).pack(anchor="w", pady=(25, 0), padx=(25, 0))
+
+        CTkButton(master=patient_add_frame, text="Main Menu", fg_color="transparent",
+                  font=("Arial Bold", 8), text_color="black", width=8, border_width=2,
+                  border_color='black', corner_radius=32, command=HOME).pack(
+            anchor="se", pady=(30, 20), padx=(0, 50))
+
+    def add_doctor():
+        Add_frame.forget()
+        global doctor_add_frame
+        doctor_add_frame = CTkScrollableFrame(master=app, width=300, height=480, fg_color="#ffffff")
+        doctor_add_frame.pack(expand=True, side="right", fill="both")  # Ensure the frame fills the space
+
+        CTkLabel(master=doctor_add_frame, text="Add New Doctor", text_color="#016dff", anchor="w", justify="left",
+                 font=("Arial Bold", 24)).pack(anchor="w", pady=(50, 5), padx=(25, 0))
+
+        CTkLabel(master=doctor_add_frame, text="Doctor ID:", text_color="#016dff", anchor="w", justify="left",
+                 font=("Arial Bold", 14), compound="left").pack(anchor="w", pady=(38, 0), padx=(25, 0))
+        doctor_id_add = CTkEntry(master=doctor_add_frame, width=225, fg_color="#EEEEEE", border_color="#016dff",
+                                 border_width=1, text_color="#000000", placeholder_text="Enter Doctor ID:")
+        doctor_id_add.pack(anchor="w", padx=(25, 0))
+
+        CTkLabel(master=doctor_add_frame, text="Doctor Name:", text_color="#016dff", anchor="w", justify="left",
+                 font=("Arial Bold", 14), compound="left").pack(anchor="w", pady=(38, 0), padx=(25, 0))
+        doctor_name_add = CTkEntry(master=doctor_add_frame, width=225, fg_color="#EEEEEE", border_color="#016dff",
+                                   border_width=1, text_color="#000000", placeholder_text="Enter Doctor Name:")
+        doctor_name_add.pack(anchor="w", padx=(25, 0))
+
+        CTkLabel(master=doctor_add_frame, text="Doctor Age:", text_color="#016dff", anchor="w", justify="left",
+                 font=("Arial Bold", 14), compound="left").pack(anchor="w", pady=(38, 0), padx=(25, 0))
+        doctor_age_add = CTkEntry(master=doctor_add_frame, width=225, fg_color="#EEEEEE", border_color="#016dff",
+                                  border_width=1, text_color="#000000", placeholder_text="Enter Doctor Age:")
+        doctor_age_add.pack(anchor="w", padx=(25, 0))
+
+
+        CTkLabel(master=doctor_add_frame, text="Doctor Department:", text_color="#016dff", anchor="w", justify="left",
+                 font=("Arial Bold", 14), compound="left").pack(anchor="w", pady=(38, 0), padx=(25, 0))
+        doctor_Department_add = CTkEntry(master=doctor_add_frame, width=225, fg_color="#EEEEEE", border_color="#016dff",
+                                      border_width=1, text_color="#000000", placeholder_text="Enter Doctor Department:")
+        doctor_Department_add.pack(anchor="w", padx=(25, 0))
+
+        CTkLabel(master=doctor_add_frame, text="Doctor Speciality:", text_color="#016dff", anchor="w", justify="left",
+                 font=("Arial Bold", 14), compound="left").pack(anchor="w", pady=(38, 0), padx=(25, 0))
+        doctor_Speciality_add = CTkEntry(master=doctor_add_frame, width=225, fg_color="#EEEEEE", border_color="#016dff",
+                                         border_width=1, text_color="#000000",
+                                         placeholder_text="Enter Doctor Speciality:")
+        doctor_Speciality_add.pack(anchor="w", padx=(25, 0))
+
+        CTkLabel(master=doctor_add_frame, text="Doctor Phone Number:", text_color="#016dff", anchor="w",
+                 justify="left", font=("Arial Bold", 14), compound="left").pack(anchor="w", pady=(38, 0), padx=(25, 0))
+        doctor_phone_add = CTkEntry(master=doctor_add_frame, width=225, fg_color="#EEEEEE", border_color="#016dff",
+                                    border_width=1, text_color="#000000", placeholder_text="Enter Doctor Phone Number:")
+        doctor_phone_add.pack(anchor="w", padx=(25, 0))
+
+        CTkButton(master=doctor_add_frame, text="Save", fg_color="#016dff", font=("Arial Bold", 12), text_color="#ffffff",
+                  width=225,command=lambda: save_add('doctors', {
+                    'Doctor_id': doctor_id_add.get(),
+                    'Name': doctor_name_add.get(),
+                    'Age': doctor_age_add.get(),
+                    'Department': doctor_Department_add.get(),
+                    'Speciality': doctor_Speciality_add.get(),
+                    'Phone_no': doctor_phone_add.get()})).pack(anchor="w", pady=(25, 0), padx=(25, 0))
+        CTkButton(master=doctor_add_frame, text="Main Menu", fg_color="transparent",
+                  font=("Arial Bold", 8), text_color="black", width=8, border_width=2,
+                  border_color='black', corner_radius=32, command=HOME).pack(
+            anchor="se", pady=(30, 20), padx=(0, 50))
+
+    def add_staff():
+        Add_frame.forget()
+        global staff_add_frame
+        staff_add_frame = CTkScrollableFrame(master=app, width=300, height=480, fg_color="#ffffff")
+        staff_add_frame.pack(expand=True, side="right", fill="both")
+
+        CTkLabel(master=staff_add_frame, text="Add New Staff", text_color="#016dff", anchor="w", justify="left",
+                 font=("Arial Bold", 24)).pack(anchor="w", pady=(50, 5), padx=(25, 0))
+
+        CTkLabel(master=staff_add_frame, text="Staff ID:", text_color="#016dff", anchor="w", justify="left",
+                 font=("Arial Bold", 14), compound="left").pack(anchor="w", pady=(38, 0), padx=(25, 0))
+        staff_id_add = CTkEntry(master=staff_add_frame, width=225, fg_color="#EEEEEE", border_color="#016dff",
+                                border_width=1, text_color="#000000", placeholder_text="Enter Staff ID:")
+        staff_id_add.pack(anchor="w", padx=(25, 0))
+
+        CTkLabel(master=staff_add_frame, text="Staff Name:", text_color="#016dff", anchor="w", justify="left",
+                 font=("Arial Bold", 14), compound="left").pack(anchor="w", pady=(38, 0), padx=(25, 0))
+        staff_name_add = CTkEntry(master=staff_add_frame, width=225, fg_color="#EEEEEE", border_color="#016dff",
+                                  border_width=1, text_color="#000000", placeholder_text="Enter Staff Name:")
+        staff_name_add.pack(anchor="w", padx=(25, 0))
+
+        CTkLabel(master=staff_add_frame, text="Staff Age:", text_color="#016dff", anchor="w", justify="left",
+                 font=("Arial Bold", 14), compound="left").pack(anchor="w", pady=(38, 0), padx=(25, 0))
+        staff_age_add = CTkEntry(master=staff_add_frame, width=225, fg_color="#EEEEEE", border_color="#016dff",
+                                 border_width=1, text_color="#000000", placeholder_text="Enter Staff Age:")
+        staff_age_add.pack(anchor="w", padx=(25, 0))
+
+        CTkLabel(master=staff_add_frame, text="Staff Phone Number:", text_color="#016dff", anchor="w",
+                 justify="left", font=("Arial Bold", 14), compound="left").pack(anchor="w", pady=(38, 0), padx=(25, 0))
+        staff_phone_add = CTkEntry(master=staff_add_frame, width=225, fg_color="#EEEEEE", border_color="#016dff",
+                                   border_width=1, text_color="#000000", placeholder_text="Enter Staff Phone Number:")
+        staff_phone_add.pack(anchor="w", padx=(25, 0))
+
+        CTkLabel(master=staff_add_frame, text="Staff Address:", text_color="#016dff", anchor="w", justify="left",
+                 font=("Arial Bold", 14), compound="left").pack(anchor="w", pady=(38, 0), padx=(25, 0))
+        staff_address_add = CTkEntry(master=staff_add_frame, width=225, fg_color="#EEEEEE", border_color="#016dff",
+                                     border_width=1, text_color="#000000", placeholder_text="Enter Staff Address:")
+        staff_address_add.pack(anchor="w", padx=(25, 0))
+
+        CTkLabel(master=staff_add_frame, text="Staff Salary:", text_color="#016dff", anchor="w", justify="left",
+                 font=("Arial Bold", 14), compound="left").pack(anchor="w", pady=(38, 0), padx=(25, 0))
+        staff_salary_add = CTkEntry(master=staff_add_frame, width=225, fg_color="#EEEEEE", border_color="#016dff",
+                                     border_width=1, text_color="#000000", placeholder_text="Enter Staff Salary:")
+        staff_salary_add.pack(anchor="w", padx=(25, 0))
+
+        CTkLabel(master=staff_add_frame, text="Staff Department:", text_color="#016dff", anchor="w", justify="left",
+                 font=("Arial Bold", 14), compound="left").pack(anchor="w", pady=(38, 0), padx=(25, 0))
+        staff_department_add = CTkEntry(master=staff_add_frame, width=225, fg_color="#EEEEEE", border_color="#016dff",
+                                    border_width=1, text_color="#000000", placeholder_text="Enter Staff Department:")
+        staff_department_add.pack(anchor="w", padx=(25, 0))
+        CTkButton(master=staff_add_frame, text="Save", fg_color="#016dff", font=("Arial Bold", 12),
+                  text_color="#ffffff",
+                  width=225, command=lambda: save_add('staff', {
+                                   'Staff_id': staff_id_add.get(),
+                                   'Name': staff_name_add.get(),
+                                   'Age': staff_age_add.get(),
+                                   'Phone_no': staff_phone_add.get(),
+                                   'Address': staff_address_add.get(),
+                                   'Salary': staff_salary_add.get(),
+                                   'Department': staff_department_add.get()
+                               })).pack(anchor="w", pady=(25, 0), padx=(25, 0))
+        CTkButton(master=staff_add_frame, text="Main Menu", fg_color="transparent",
+                  font=("Arial Bold", 8), text_color="black", width=8, border_width=2,
+                  border_color='black', corner_radius=32, command=HOME).pack(
+            anchor="se", pady=(30, 20), padx=(0, 50))
+
+
+
+    CTkLabel(master=Add_frame, text="Add New Records", text_color="#016dff", anchor="w", justify="left",
+             font=("Arial Bold", 24)).pack(anchor="w", pady=(50, 5), padx=(25, 0))
+    button001 = CTkButton(master=Add_frame, text="Add Patient Record", fg_color="#016dff", font=("Arial Bold", 12),
+                         text_color="#ffffff", width=225,command=add_patient)
+    button001.pack(pady=12, padx=10)
+    button002 = CTkButton(master=Add_frame, text="Add Doctor Record", fg_color="#016dff", font=("Arial Bold", 12),
+                         text_color="#ffffff", width=225,command=add_doctor)
+    button002.pack(pady=12, padx=10)
+    button003 = CTkButton(master=Add_frame, text="Add Staff Record", fg_color="#016dff", font=("Arial Bold", 12),
+                         text_color="#ffffff", width=225,command=add_staff)
+    button003.pack(pady=12, padx=10,)
+    CTkButton(master=Add_frame, text="Main Menu", fg_color="transparent",
+              font=("Arial Bold", 8), text_color="black", width=8, border_width=2,
+              border_color='black', corner_radius=32, command=HOME).pack(
+        anchor="se", pady=(30, 20), padx=(0, 50))
+
+
+
+
+
+def Delete_record():
+    main_view.pack_forget()
+    global Delete_frame
+    Delete_frame = CTkFrame(master=app, width=300, height=480, fg_color="#ffffff")
+    Delete_frame.pack_propagate(0)
+    Delete_frame.pack(expand=True, side="right")
+
+    def delete(table):
+        Delete_frame.pack_forget()
+        global Del_frame
+        Del_frame = CTkFrame(master=app, width=300, height=480, fg_color="#ffffff")
+        Del_frame.pack_propagate(0)
+        Del_frame.pack(expand=True, side="right")
+        CTkLabel(master=Del_frame, text="Enter ID to Delete", text_color="#016dff", anchor="w", justify="left",
+                 font=("Arial Bold", 14)).pack(anchor="w", padx=(25, 0), pady=(50, 5))
+
+        id_entry = CTkEntry(master=Del_frame, width=225, fg_color="#EEEEEE", border_color="#016dff",
+                            border_width=1, text_color="#000000", placeholder_text="Ex: Record ID")
+        id_entry.pack(anchor="w", padx=(25, 0))
+
+        def execute_delete():
+            record_id = id_entry.get()
+            if table == 'patient':
+                cursor.execute('DELETE FROM patient_record WHERE Patient_id = %s', (record_id,))
+            elif table == 'staff':
+                cursor.execute('DELETE FROM staff_record WHERE Staff_id = %s', (record_id,))
+            elif table == 'doctors':
+                cursor.execute('DELETE FROM staff_record WHERE Doctor_id = %s', (record_id,))
+
+            connection.commit()
+            print(f"Deleted record from {table} with ID {record_id}")
+
+        CTkButton(master=Del_frame, text="Delete", fg_color="#ff0000",
+                  font=("Arial Bold", 12), text_color="white", width=8, border_width=2,
+                  border_color='#ff0000', corner_radius=32, command=execute_delete).pack(
+            anchor="w", pady=(20, 5), padx=(25, 0))
+
+        CTkButton(master=Del_frame, text="Main Menu", fg_color="transparent",
+                  font=("Arial Bold", 8), text_color="black", width=8, border_width=2,
+                  border_color='black', corner_radius=32, command=HOME).pack(
+            anchor="se", pady=(30, 20), padx=(0, 50))
+
+    CTkLabel(master=Delete_frame, text="Delete Records", text_color="#016dff", anchor="w", justify="left",
+             font=("Arial Bold", 24)).pack(anchor="w", pady=(10, 5), padx=(25, 0))
+
+    button011 = CTkButton(master=Delete_frame, text="Delete Patient Record", fg_color="#016dff", font=("Arial Bold", 12),
+                         text_color="#ffffff", width=225,
+                         command=lambda: delete('patient'))
+    button011.pack(pady=12, padx=10)
+
+    button012 = CTkButton(master=Delete_frame, text="Delete Doctor Record", fg_color="#016dff", font=("Arial Bold", 12),
+                         text_color="#ffffff", width=225,
+                         command=lambda: delete('doctors'))
+    button012.pack(pady=12, padx=10)
+
+    button013 = CTkButton(master=Delete_frame, text="Delete Staff Record", fg_color="#016dff", font=("Arial Bold", 12),
+                         text_color="#ffffff", width=225,
+                         command=lambda: delete('staff'))
+    button013.pack(pady=12, padx=10)
+
+    CTkButton(master=Delete_frame, text="Main Menu", fg_color="transparent",
+              font=("Arial Bold", 8), text_color="black", width=8, border_width=2,
+              border_color='black', corner_radius=32, command=HOME).pack(
+        anchor="se", pady=(30, 20), padx=(0, 50))
+
+
+def Billing_Insurance():
+    main_view.pack_forget()
+    global Bill_Frame
+
+    Bill_Frame = CTkScrollableFrame(master=app, width=300, height=480, fg_color="#ffffff")
+    Bill_Frame.pack(expand=True, side="right",fill="both")
+
+    CTkLabel(master=Bill_Frame, text="Billing", text_color="#016dff", anchor="w", justify="left",
+             font=("Arial Bold", 24)).pack(anchor="w", pady=(50, 5), padx=(25, 0))
+
+    CTkLabel(master=Bill_Frame, text="Patient ID:", text_color="#016dff", anchor="w", justify="left",
+             font=("Arial Bold", 14), compound="left").pack(anchor="w", pady=(38, 0), padx=(25, 0))
+
+    patient_id_add = CTkEntry(master=Bill_Frame, width=225, fg_color="#EEEEEE", border_color="#016dff",
+                              border_width=1, text_color="#000000", placeholder_text="Enter Patient ID:")
+    patient_id_add.pack(anchor="w", padx=(25, 0))
+
+    def fetch_billing_data():
+        patient_id = patient_id_add.get()
+
+        cursor = connection.cursor()
+        query = """SELECT billing.Billing_id, billing.Patient_id, billing.Doctor_id, billing.Cost, billing.Insurance_Status, 
+                             doctor_record.Name AS Doctor_Name, patient_record.Name AS Patient_Name, patient_record.admission_date
+                      FROM billing
+                      JOIN patient_record ON billing.Patient_id = patient_record.Patient_id
+                      JOIN doctor_record ON billing.Doctor_id = doctor_record.Doctor_id
+                      WHERE billing.Patient_id = %s;"""
+        cursor.execute(query, (patient_id,))
+        billing_data = cursor.fetchone()
+
+        if billing_data:
+            billing_id, patient_id, doctor_id, cost, insurance_status, doctor_name, patient_name, admission_date = billing_data
+
+            CTkLabel(master=Bill_Frame, text=f"Patient Name: {patient_name}", text_color="#000000", anchor="w",
+                     justify="left", font=("Arial", 12)).pack(anchor="w", pady=(10, 0), padx=(25, 0))
+
+            CTkLabel(master=Bill_Frame, text=f"Doctor Name: {doctor_name}", text_color="#000000", anchor="w",
+                     justify="left", font=("Arial", 12)).pack(anchor="w", pady=(10, 0), padx=(25, 0))
+
+            CTkLabel(master=Bill_Frame, text=f"Cost: {cost}", text_color="#000000", anchor="w", justify="left",
+                     font=("Arial", 12)).pack(anchor="w", pady=(10, 0), padx=(25, 0))
+
+            CTkLabel(master=Bill_Frame, text=f"Insurance Status: {insurance_status}", text_color="#000000",
+                     anchor="w",
+                     justify="left", font=("Arial", 12)).pack(anchor="w", pady=(10, 0), padx=(25, 0))
+
+            CTkLabel(master=Bill_Frame, text=f"Admission Date: {admission_date}", text_color="#000000",
+                     anchor="w",
+                     justify="left", font=("Arial", 12)).pack(anchor="w", pady=(10, 0), padx=(25, 0))
+        else:
+            CTkLabel(master=Bill_Frame, text="No billing data found for the given Patient ID", text_color="red",
+                     anchor="w", justify="left", font=("Arial", 12)).pack(anchor="w", pady=(10, 0),
+                                                                          padx=(25, 0))
+
+    CTkButton(master=Bill_Frame, text="Fetch Billing Data", fg_color="#016dff", font=("Arial Bold", 12),
+              text_color="#ffffff", width=150, command=fetch_billing_data).pack(anchor="w", pady=(20, 0),
+                                                                                padx=(25, 0))
+
+    CTkButton(master=Bill_Frame, text="Main Menu", fg_color="transparent",
+              font=("Arial Bold", 8), text_color="black", width=8, border_width=2,
+              border_color='black', corner_radius=32, command=HOME).pack(
+        anchor="se", pady=(30, 20), padx=(0, 50))
+
+
+
+def Inventory():
+    global Inventory_Frame
+    main_view.pack_forget()
+
+    Inventory_Frame = CTkFrame(master=app, width=300, height=480, fg_color="#ffffff")
+    Inventory_Frame.pack_propagate(0)
+    Inventory_Frame.pack(expand=True, side="right")
+    CTkLabel(master=Inventory_Frame, text="Inventory", text_color="#016dff", anchor="w", justify="left",
+             font=("Arial Bold", 24)).pack(anchor="w", pady=(50, 5), padx=(25, 0))
+
+    def alert():
+        Inventory_Frame.pack_forget()
+        global alert_frame
+
+        alert_frame = CTkScrollableFrame(master=app, width=300, height=480, fg_color="#ffffff")
+        alert_frame.pack(expand=True, side="right", fill="both")
+
+        query = """SELECT *
+                   FROM medical_supplies
+                   WHERE quantity < 100
+                   OR expiry_date <= CURDATE() + INTERVAL 20 DAY;"""
+        cursor.execute(query)
+        qqq = cursor.fetchall()
+
+        if qqq:
+            for row in qqq:
+                item_id, item_name, item_category, quantity, unit_price, expiry_date, description = row
+                CTkLabel(master=alert_frame, text=f"item_id: {item_id}", text_color="#000000", anchor="w",
+                         justify="left", font=("Arial", 12)).pack(anchor="w", pady=(10, 0), padx=(25, 0))
+                CTkLabel(master=alert_frame, text=f"item_name: {item_name}", text_color="#000000", anchor="w",
+                         justify="left", font=("Arial", 12)).pack(anchor="w", pady=(10, 0), padx=(25, 0))
+                CTkLabel(master=alert_frame, text=f"item_category: {item_category}", text_color="#000000", anchor="w",
+                         justify="left", font=("Arial", 12)).pack(anchor="w", pady=(10, 0), padx=(25, 0))
+                CTkLabel(master=alert_frame, text=f"quantity: {quantity}", text_color="#000000", anchor="w",
+                         justify="left", font=("Arial", 12)).pack(anchor="w", pady=(10, 0), padx=(25, 0))
+                CTkLabel(master=alert_frame, text=f"unit_price: {unit_price}", text_color="#000000", anchor="w",
+                         justify="left", font=("Arial", 12)).pack(anchor="w", pady=(10, 0), padx=(25, 0))
+                CTkLabel(master=alert_frame, text=f"expiry_date: {expiry_date}", text_color="#000000", anchor="w",
+                         justify="left", font=("Arial", 12)).pack(anchor="w", pady=(10, 0), padx=(25, 0))
+                CTkLabel(master=alert_frame, text=f"description: {description}", text_color="#000000", anchor="w",
+                         justify="left", font=("Arial", 12)).pack(anchor="w", pady=(10, 0), padx=(25, 0))
+        CTkButton(master=alert_frame, text="Main Menu", fg_color="transparent",
+            font=("Arial Bold", 8), text_color="black", width=8, border_width=2,
+            border_color='black', corner_radius=32, command=HOME).pack(
+            anchor="se", pady=(30, 20), padx=(0, 50))
+
+    def save_supp(table, data):
+        if table == 'inventory':
+            try:
+                cursor.execute('''
+                    INSERT INTO inventory_items (item_id, item_name, item_category, quantity, unit_price, expiry_date, description) 
+                    VALUES (%s, %s, %s, %s, %s, %s, %s)
+                ''', (
+                    data['item_id'],
+                    data['item_name'],
+                    data['item_category'],
+                    int(data['quantity']),
+                    float(data['unit_price']),
+                    data['expiry_date'],
+                    data['description']
+                ))
+                connection.commit()
+                print("Record Added.")
+            except Exception as e:
+                print(f"Error occurred: {e}")
+
+    def add_supply():
+        Inventory_Frame.pack_forget()
+        global supply1_frame
+        supply1_frame = CTkFrame(master=app, width=300, height=480, fg_color="#ffffff")
+        supply1_frame.pack_propagate(0)
+        supply1_frame.pack(expand=True, side="right")
+
+        CTkLabel(master=supply1_frame, text="Add New supplies", text_color="#016dff", anchor="w", justify="left",
+                 font=("Arial Bold", 24)).pack(anchor="w", pady=(50, 5), padx=(25, 0))
+
+        item_id = CTkEntry(master=supply1_frame, width=225, fg_color="#EEEEEE", border_color="#016dff",
+                           border_width=1, text_color="#000000", placeholder_text="Item ID")
+        item_id.pack(anchor="w", padx=(25, 0))
+
+        item_name = CTkEntry(master=supply1_frame, width=225, fg_color="#EEEEEE", border_color="#016dff",
+                             border_width=1, text_color="#000000", placeholder_text="Item Name")
+        item_name.pack(anchor="w", padx=(25, 0))
+
+        item_category = CTkEntry(master=supply1_frame, width=225, fg_color="#EEEEEE", border_color="#016dff",
+                                 border_width=1, text_color="#000000", placeholder_text="Item Category")
+        item_category.pack(anchor="w", padx=(25, 0))
+
+        item_quantity = CTkEntry(master=supply1_frame, width=225, fg_color="#EEEEEE", border_color="#016dff",
+                                 border_width=1, text_color="#000000", placeholder_text="Quantity")
+        item_quantity.pack(anchor="w", padx=(25, 0))
+
+        item_price = CTkEntry(master=supply1_frame, width=225, fg_color="#EEEEEE", border_color="#016dff",
+                              border_width=1, text_color="#000000", placeholder_text="Unit Price")
+        item_price.pack(anchor="w", padx=(25, 0))
+
+        item_exp_date = CTkEntry(master=supply1_frame, width=225, fg_color="#EEEEEE", border_color="#016dff",
+                                 border_width=1, text_color="#000000", placeholder_text="Expiry Date (YYYY-MM-DD)")
+        item_exp_date.pack(anchor="w", padx=(25, 0))
+
+        item_desc = CTkEntry(master=supply1_frame, width=225, fg_color="#EEEEEE", border_color="#016dff",
+                             border_width=1, text_color="#000000", placeholder_text="Description")
+        item_desc.pack(anchor="w", padx=(25, 0))
+
+        CTkButton(master=supply1_frame, text="Save", fg_color="#016dff", font=("Arial Bold", 12),
+                  text_color="#ffffff", width=225, command=lambda: save_supp('inventory', {
+                'item_id': item_id.get(),
+                'item_name': item_name.get(),
+                'item_category': item_category.get(),
+                'quantity': item_quantity.get(),
+                'unit_price': item_price.get(),
+                'expiry_date': item_exp_date.get(),
+                'description': item_desc.get()
+            })).pack(anchor="w", pady=(25, 0), padx=(25, 0))
+        CTkButton(master=supply1_frame, text="Main Menu", fg_color="transparent",
+                  font=("Arial Bold", 8), text_color="black", width=8, border_width=2,
+                  border_color='black', corner_radius=32, command=HOME).pack(
+            anchor="se", pady=(30, 20), padx=(0, 50))
+
+    button2221 = CTkButton(master=Inventory_Frame, text="Add Supply", fg_color="#016dff", font=("Arial Bold", 12),
+                          text_color="#ffffff", width=225,command=add_supply)
+    button2221.pack(anchor="w", pady=(20, 0),
+                                                                   padx=(25, 0))
+    CTkButton(master=Inventory_Frame, text="Check for Low Supply", fg_color="#016dff", font=("Arial Bold", 12),
+              text_color="#ffffff", width=225, command=alert).pack( anchor="w",pady=(20, 0),
+                                                                   padx=(25, 0))
+
+
+    CTkButton(master=Inventory_Frame, text="Main Menu", fg_color="transparent",
+              font=("Arial Bold", 8), text_color="black", width=8, border_width=2,
+              border_color='black', corner_radius=32, command=HOME).pack(
+        anchor="se", pady=(30, 20), padx=(0, 50))
+
+def main_page():
+    if 'frame' in globals():
+        frame.pack_forget()
+
+    global main_view
+    main_view = CTkFrame(master=app, width=300, height=480, fg_color="#ffffff")
+    main_view.pack_propagate(0)
+    main_view.pack(expand=True, side="right")
+
+    CTkLabel(master=main_view, text="Main Menu", text_color="#016dff", anchor="w", justify="left",
+             font=("Arial Bold", 24)).pack(anchor="w", pady=(50, 5), padx=(25, 0))
+    button01 = CTkButton(master=main_view, text="Add Record",fg_color="#016dff", font=("Arial Bold", 12), text_color="#ffffff", width=225,command=Add_record)
+    button01.pack(pady=12, padx=10)
+    button03 = CTkButton(master=main_view, text="Delete Record", fg_color="#016dff", font=("Arial Bold", 12),
+                         text_color="#ffffff", width=225,command=Delete_record)
+    button03.pack(pady=12, padx=10)
+    button04 = CTkButton(master=main_view, text="Billing and Insurance", fg_color="#016dff", font=("Arial Bold", 12),
+                         text_color="#ffffff", width=225,command=Billing_Insurance)
+    button04.pack(pady=12, padx=10)
+    button05 = CTkButton(master=main_view, text="Inventory", fg_color="#016dff", font=("Arial Bold", 12),
+                         text_color="#ffffff", width=225,command=Inventory)
+    button05.pack(pady=12, padx=10)
+    CTkButton(master=main_view, text="Quit", fg_color="transparent",
+              font=("Arial Bold", 8), text_color="black", width=8 ,border_width=2,
+              border_color='black', corner_radius=32, command=quit_program).pack(
+            anchor="se", pady=(0, 20), padx=(0, 20))
+
+
+
+def quit_program():
+    cursor.close()
+    connection.close()
+    app.destroy()
+
+app = CTk()
+app.geometry("600x480")
+app.title("Hospital-Management_V3")
+app.resizable(0, 0)
+
+side_img_data = Image.open("doktar.jpg")
+email_icon_data = Image.open("email-icon.png")
+password_icon_data = Image.open("password-icon.png")
+
+side_img = CTkImage(dark_image=side_img_data, light_image=side_img_data, size=(300, 480))
+user_icon = CTkImage(dark_image=email_icon_data, light_image=email_icon_data, size=(20, 20))
+password_icon = CTkImage(dark_image=password_icon_data, light_image=password_icon_data, size=(17, 17))
+
+CTkLabel(master=app, text="", image=side_img).pack(expand=True, side="left")
+frame = CTkFrame(master=app, width=300, height=480, fg_color="#ffffff")
+frame.pack_propagate(0)
+frame.pack(expand=True, side="right")
+
+CTkLabel(master=frame, text="Welcome Back!", text_color="#016dff", anchor="w", justify="left", font=("Arial Bold", 24)).pack(anchor="w", pady=(50, 5), padx=(25, 0))
+CTkLabel(master=frame, text="Sign into your Account.", text_color="#7E7E7E", anchor="w", justify="left", font=("Arial Bold", 12)).pack(anchor="w", padx=(25, 0))
+
+CTkLabel(master=frame, text="  Username:", text_color="#016dff",     anchor="w", justify="left", font=("Arial Bold", 14), image=user_icon, compound="left").pack(anchor="w", pady=(38, 0), padx=(25, 0))
+entry_name = CTkEntry(master=frame, width=225, fg_color="#EEEEEE", border_color="#016dff", border_width=1, text_color="#000000", placeholder_text="Ex: harsha")
+entry_name.pack(anchor="w", padx=(25, 0))
+
+CTkLabel(master=frame, text="  Password:", text_color="#016dff", anchor="w", justify="left", font=("Arial Bold", 14), image=password_icon, compound="left").pack(anchor="w", pady=(21, 0), padx=(25, 0))
+entry_pas = CTkEntry(master=frame, width=225, fg_color="#EEEEEE", border_color="#016dff", border_width=1, text_color="#000000", show="*", placeholder_text="ex: 9624")
+entry_pas.pack(anchor="w", padx=(25, 0))
+
+login_message = CTkLabel(master=frame, text="", text_color="red", anchor="w", justify="left", font=("Arial Bold", 12))
+login_message.pack(anchor="w", pady=(10, 0), padx=(25, 0))
+
+CTkButton(master=frame, text="Login", fg_color="#016dff",  font=("Arial Bold", 12), text_color="#ffffff", width=225,command=login).pack(anchor="w", pady=(25, 0), padx=(25, 0))
+CTkButton(master=frame, text="Quit", fg_color="transparent",
+              font=("Arial Bold", 8), text_color="black", width=8 ,border_width=2,
+              border_color='black', corner_radius=32, command=quit_program).pack(
+            anchor="se", pady=(30, 20), padx=(0, 50))
+
+
+app.mainloop()
+
