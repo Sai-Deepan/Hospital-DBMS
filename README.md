@@ -10,3 +10,4 @@ Hospital DBMS is a robust and efficient database management system designed to s
 8) Integration with MySQL: Ensures reliable and scalable data storage with advanced querying capabilities.  
 9) User-Friendly Interface: Built with tools like CustomTkinter, providing a simple yet effective UI for hospital staff and management.  
 
+By integrating Libraries such as MySQL, CustomTkinter Hospital-DBMS ensures user-friendly interfaces and robust performance, making it a comprehensive tool to improve healthcare services.
